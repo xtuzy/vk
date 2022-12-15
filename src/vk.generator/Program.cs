@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.CommandLine;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Vk.Generator
 {
@@ -9,12 +10,53 @@ namespace Vk.Generator
     {
         public static int Main(string[] args)
         {
+            StringBuilder commandline = new StringBuilder();
+            foreach (string arg in args)
+            {
+                commandline.Append(arg);
+                commandline.Append(' ');
+            }
+
             string outputPath = AppContext.BaseDirectory;
 
-            ArgumentSyntax.Parse(args, s =>
+            /*ArgumentSyntax.Parse(args, s =>
             {
                 s.DefineOption("o|out", ref outputPath, "The folder into which code is generated. Defaults to the application directory.");
-            });
+            });*/
+
+            //System.CommandLine not work, so i custom parse
+            string ParsePath(string arg, string tag)
+            {
+                if (arg.Contains(tag))
+                {
+                    var strs = arg.Split(tag);
+                    var str = strs[strs.Length - 1].Trim();
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var s in str)
+                    {
+                        if (s == ' ')
+                            break;
+                        else
+                            sb.Append(s);
+                    }
+                    var path = sb.ToString();
+                    try
+                    {
+                        Path.GetFullPath(path);
+                    }
+                    catch
+                    {
+                        path = null;
+                    }
+                    return path;
+                }
+                else
+                    return null;
+            }
+            var path = ParsePath(commandline.ToString(), "out");
+            if (path != null)
+                outputPath = path;
+            Console.WriteLine($"outputPath:{outputPath}");
 
             Configuration.CodeOutputPath = outputPath;
 

@@ -18,19 +18,56 @@ namespace Vk.Rewrite
 
         public static int Main(string[] args)
         {
+            StringBuilder commandline = new StringBuilder();
+            foreach(string arg in args)
+            {
+                commandline.Append(arg);
+                commandline.Append(' ');
+            }
             string vkDllPath = null;
             string outputPath = null;
             bool copiedToTemp = false;
-            var s = System.CommandLine.ArgumentSyntax.Parse(args, syntax =>
+            /*var s = System.CommandLine.ArgumentSyntax.Parse(args, syntax =>
             {
                 syntax.DefineOption("vkdll", ref vkDllPath, "The location of vk.dll to rewrite.");
                 syntax.DefineOption("out", ref outputPath, "The output location of the rewritten DLL. If not specified, the DLL is rewritten in-place.");
-            });
+            });*/
+            //System.CommandLine not work, so i custom parse
+            string ParsePath(string arg, string tag)
+            {
+                if (arg.Contains(tag))
+                {
+                    var strs = arg.Split(tag);
+                    var str = strs[strs.Length - 1].Trim();
+                    StringBuilder sb = new StringBuilder();
+                    foreach( var s in str )
+                    {
+                        if (s == ' ')
+                            break;
+                        else
+                            sb.Append(s);
+                    }
+                    var path = sb.ToString();
+                    try
+                    {
+                        Path.GetFullPath(path);
+                    }
+                    catch
+                    {
+                        path = null;
+                    }
+                    return path;
+                }
+                else
+                    return null;
+            }
+            vkDllPath = ParsePath(commandline.ToString(), "vkdll");
+            outputPath = ParsePath(commandline.ToString(), "out");
 
             if (vkDllPath == null)
             {
                 Console.WriteLine("Error: a path for --vkdll is required.");
-                Console.WriteLine(s.GetHelpText());
+                //Console.WriteLine(s.GetHelpText());
                 return -1;
             }
             if (outputPath == null)
