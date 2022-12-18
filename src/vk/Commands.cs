@@ -39,10 +39,14 @@ namespace Vulkan
                     return "libvulkan.so.1";
                 }
             }
-#if NET5_0
+#if NET5_0_OR_GREATER
             else if (OperatingSystem.IsAndroid())
             {
                 return "libvulkan.so";
+            }
+            else if (OperatingSystem.IsIOS())
+            {
+                return null;
             }
 #endif
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -104,11 +108,17 @@ namespace Vulkan
             {
                 return new WindowsNativeLibrary(libraryName);
             }
+#if IOS
+            else if (OperatingSystem.IsIOS())
+            {
+                return new IOSNativeLibrary(null);
+            }
+#endif
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                #if NET5_0
+#if NET5_0_OR_GREATER
                 || OperatingSystem.IsAndroid()
-                #endif
+#endif
                 )
             {
                 return new UnixNativeLibrary(libraryName);
@@ -175,5 +185,29 @@ namespace Vulkan
                 return Libdl.dlsym(NativeHandle, functionName);
             }
         }
+
+#if IOS
+        private class IOSNativeLibrary : NativeLibrary
+        {
+            public IOSNativeLibrary(string libraryName) : base(libraryName)
+            {
+            }
+
+            protected override IntPtr LoadLibrary(string libraryName)
+            {
+                return ObjCRuntime.Dlfcn.dlopen(null, 0x002);//主程序
+            }
+
+            protected override void FreeLibrary(IntPtr libraryHandle)
+            {
+                ObjCRuntime.Dlfcn.dlclose(NativeHandle);
+            }
+
+            protected override IntPtr LoadFunction(string functionName)
+            {
+                return ObjCRuntime.Dlfcn.dlsym(NativeHandle, functionName);
+            }
+        }
+#endif
     }
 }

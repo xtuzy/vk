@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6.0-ios;net5.0;netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <AssemblyName>vk</AssemblyName>
-    <AssemblyVersion>1.0.25</AssemblyVersion>
+    <AssemblyVersion>1.0.30</AssemblyVersion>
     <RootNamespace>Vulkan</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ProjectGuid>{D8573039-9FE1-4554-A659-4E77CFBA83C1}</ProjectGuid>
@@ -13,6 +13,8 @@
 
     <!-- Package Info -->
     <PackageId>Vk</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
     <PackageVersion>$(AssemblyVersion)</PackageVersion>
     <Description>Low-level bindings for the Vulkan graphics and compute API.</Description>
     <PackageTags>Vulkan Graphics 3D GPU Games Khronos</PackageTags>
