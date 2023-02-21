@@ -44,7 +44,11 @@ namespace Vulkan
             {
                 return "libvulkan.so";
             }
-            else if (OperatingSystem.IsIOS())
+            else if (OperatingSystem.IsIOS()
+#if NET6_0_OR_GREATER
+                || OperatingSystem.IsMacCatalyst()
+#endif
+                )
             {
                 return null;
             }
@@ -108,8 +112,9 @@ namespace Vulkan
             {
                 return new WindowsNativeLibrary(libraryName);
             }
-#if IOS
-            else if (OperatingSystem.IsIOS())
+#if IOS || MACCATALYST
+            else if (OperatingSystem.IsIOS()
+                || OperatingSystem.IsMacCatalyst())
             {
                 return new IOSNativeLibrary(null);
             }
@@ -186,7 +191,7 @@ namespace Vulkan
             }
         }
 
-#if IOS
+#if IOS || MACCATALYST
         private class IOSNativeLibrary : NativeLibrary
         {
             public IOSNativeLibrary(string libraryName) : base(libraryName)
